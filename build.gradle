@@ -24,6 +24,9 @@ version = '1.0-SNAPSHOT'
 
 dependencies {
 
+    compile 'org.projectlombok:lombok:1.16.6'
+    compile 'org.slf4j:slf4j-api:1.7.12'
+
 	// network (http/ws).  we use netty with jersey2 directly.
 	compile 'org.glassfish.jersey.core:jersey-server:2.22.2'
 	compile 'io.netty:netty-all:4.1.0.CR3'

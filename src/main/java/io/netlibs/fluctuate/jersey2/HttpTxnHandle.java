@@ -1,12 +1,11 @@
 package io.netlibs.fluctuate.jersey2;
 
-import java.io.File;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
 
 /**
  * To support both HTTP/1.1 and HTTP/2.0, provide an interface which hides away the underlying handler - HTTP/2.0 has some specifics around
@@ -23,8 +22,6 @@ public interface HttpTxnHandle
 
   void reject(int status, String reason);
 
-  void send(File file);
-
   String path();
 
   default void reject(int code)
@@ -34,7 +31,7 @@ public interface HttpTxnHandle
 
   String host();
 
-  void send(DefaultFullHttpResponse res);
+  void send(FullHttpResponse res);
 
   String cookie(String name);
 
