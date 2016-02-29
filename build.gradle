@@ -19,7 +19,7 @@ repositories {
 apply plugin: 'java'
 apply plugin: 'pride'
 
-group = "io.joss.fluctuate"
+group = "io.netlibs.fluctuate"
 version = '1.0-SNAPSHOT'
 
 dependencies {
