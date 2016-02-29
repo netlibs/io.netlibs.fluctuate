@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
+import javax.ws.rs.core.Response.StatusType;
 
 import org.glassfish.jersey.server.ContainerException;
 import org.glassfish.jersey.server.ContainerResponse;
@@ -25,6 +28,8 @@ import io.netty.handler.codec.http.HttpVersion;
 
 public class NettyContainerResponseWriter implements ContainerResponseWriter
 {
+
+  Logger log = Logger.getLogger(NettyContainerResponseWriter.class.getName());
 
   private class SuspensionData implements Runnable
   {
@@ -104,9 +109,7 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
   {
 
     // create a full HTTP response.
-    this.response = new DefaultFullHttpResponse(
-        HttpVersion.HTTP_1_1,
-        new HttpResponseStatus(responseContext.getStatus(), responseContext.getStatusInfo().getReasonPhrase()));
+    this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, makeStatus(responseContext.getStatusInfo()));
 
     // loop though each header and add to the netty response.
     for (Map.Entry<String, List<String>> e : responseContext.getStringHeaders().entrySet())
@@ -120,6 +123,15 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
     // the output stream adapter that writes to netty response.
     return new ByteBufOutputStream(response.content());
 
+  }
+
+  private HttpResponseStatus makeStatus(StatusType status)
+  {
+    if (status.getReasonPhrase() == null)
+    {
+      return HttpResponseStatus.valueOf(status.getStatusCode());
+    }
+    return new HttpResponseStatus(status.getStatusCode(), status.getReasonPhrase());
   }
 
   /**
@@ -141,10 +153,12 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
 
     this.suspended = new SuspensionData(handler);
 
-    this.suspended.update(Duration.of(units.toMillis(amount), ChronoUnit.MILLIS));
+    if (amount > 0)
+    {
+      this.suspended.update(Duration.of(units.toMillis(amount), ChronoUnit.MILLIS));
+    }
 
     return true;
-
   }
 
   /**
@@ -186,13 +200,14 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
   @Override
   public void failure(Throwable throwable)
   {
+    log.severe(throwable.getMessage());
     this.channel.reject(500);
     this.cleanup();
   }
 
   private void cleanup()
   {
-    if (this.suspended == null)
+    if (this.suspended != null)
     {
       this.suspended.cancel();
       this.suspended = null;
