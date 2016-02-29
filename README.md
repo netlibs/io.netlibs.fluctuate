@@ -1,4 +1,4 @@
-# Fluctuate: HTTP/WS frontend router
+# Fluctuate: HTTP/WS frontend Jersey2/Netty
 
 A HTTP and WebSocket router and offload engine.
 
