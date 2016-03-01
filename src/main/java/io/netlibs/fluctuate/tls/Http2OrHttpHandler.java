@@ -4,6 +4,7 @@ import io.netlibs.fluctuate.Connection;
 import io.netlibs.fluctuate.WebRouter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http2.DefaultHttp2Connection;
@@ -96,6 +97,7 @@ class Http2OrHttpHandler extends ChannelInboundHandlerAdapter
     ctx.pipeline().addLast(
         new HttpServerCodec(),
         new HttpObjectAggregator(MAX_CONTENT_LENGTH),
+        new HttpContentCompressor(),
         new Http1RequestHandler(conn));
   }
 
@@ -116,6 +118,7 @@ class Http2OrHttpHandler extends ChannelInboundHandlerAdapter
         .frameListener(listener)
         .connection(connection).build());
 
+    ctx.pipeline().addLast(new HttpContentCompressor());
     ctx.pipeline().addLast(new Http2RequestHandler(conn));
 
   }
