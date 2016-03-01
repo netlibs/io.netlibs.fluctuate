@@ -107,7 +107,7 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
   @Override
   public ByteBufOutputStream writeResponseStatusAndHeaders(long contentLength, ContainerResponse responseContext) throws ContainerException
   {
-
+    
     // create a full HTTP response.
     this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, makeStatus(responseContext.getStatusInfo()));
 

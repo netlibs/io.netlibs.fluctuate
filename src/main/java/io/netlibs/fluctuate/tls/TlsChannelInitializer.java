@@ -85,12 +85,14 @@ public class TlsChannelInitializer extends ChannelInitializer<SocketChannel>
           .forServer(keying.getPrivateKey(), keying.getPublicKey())
           .applicationProtocolConfig(DEFAULT_APN)
           .build();
-
+      
       if (cached == null)
       {
         return null;
       }
 
+      cached = new FluctuateSslContext(cached);
+            
       contexts.put(StringUtils.trimToEmpty(keying.getServerName()), cached);
 
     }

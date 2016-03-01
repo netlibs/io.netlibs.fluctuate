@@ -1,5 +1,6 @@
 package io.netlibs.fluctuate.tls;
 
+
 import io.netlibs.fluctuate.Connection;
 import io.netlibs.fluctuate.WebRouter;
 import io.netty.channel.ChannelHandlerContext;
@@ -41,22 +42,33 @@ class Http2OrHttpHandler extends ChannelInboundHandlerAdapter
   @Override
   public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception
   {
+    
     if (evt instanceof SslHandshakeCompletionEvent)
     {
+
       final SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
-      ctx.pipeline().remove(this);
+
       SslHandshakeCompletionEvent handshakeEvent = (SslHandshakeCompletionEvent) evt;
+
       if (handshakeEvent.isSuccess())
       {
+        // remove ourselves.
+        ctx.pipeline().remove(this);
         String protocol = sslHandler.applicationProtocol();
         configurePipeline(ctx, protocol != null ? protocol : ApplicationProtocolNames.HTTP_1_1);
       }
       else
       {
-        handshakeFailure(ctx, handshakeEvent.cause());
+        // TODO: we could feasably do sniffing ...
+        log.debug("Handshake failure with [{}], cause: {}", ctx.channel().remoteAddress(), handshakeEvent.cause().getMessage());
+        ctx.channel().close();
+        return;
       }
+
     }
+
     ctx.fireUserEventTriggered(evt);
+
   }
 
   /**
@@ -133,11 +145,15 @@ class Http2OrHttpHandler extends ChannelInboundHandlerAdapter
     ctx.close();
   }
 
+  /**
+   * somethign weent wrong in the pipeline, dang ...
+   */
+
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
   {
-    log.warn("{} Failed to select the application-level protocol:", ctx.channel(), cause);
-    ctx.close();
+    // log.warn("{} Failed to select the application-level protocol:", ctx.channel(), cause);
+    // ctx.close();
   }
 
 }
