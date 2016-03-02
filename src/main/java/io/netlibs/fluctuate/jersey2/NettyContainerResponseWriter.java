@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response.StatusType;
@@ -107,7 +108,7 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
   @Override
   public ByteBufOutputStream writeResponseStatusAndHeaders(long contentLength, ContainerResponse responseContext) throws ContainerException
   {
-    
+
     // create a full HTTP response.
     this.response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, makeStatus(responseContext.getStatusInfo()));
 
@@ -198,9 +199,9 @@ public class NettyContainerResponseWriter implements ContainerResponseWriter
    */
 
   @Override
-  public void failure(Throwable throwable)
+  public void failure(Throwable ex)
   {
-    log.severe(throwable.getMessage());
+    log.log(Level.WARNING, "Jersey failed request: " + ex.getMessage(), ex);
     this.channel.reject(500);
     this.cleanup();
   }

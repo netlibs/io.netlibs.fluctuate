@@ -84,12 +84,11 @@ class Http2OrHttpHandler extends ChannelInboundHandlerAdapter
 
     if (ApplicationProtocolNames.HTTP_2.equals(protocol))
     {
-      log.debug("Client requested host {}, negotiated HTTP/2.0", sni.hostname());
+      // log.debug("Client requested host {}, negotiated HTTP/2.0", sni.hostname());
       configureHttp2(ctx, router.connection(sni.hostname(), sni.sslContext()));
     }
     else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol))
     {
-      log.debug("HTTP/1.1 client requesting {}", sni.hostname());
       configureHttp1(ctx, router.connection(sni.hostname(), sni.sslContext()));
     }
     else
